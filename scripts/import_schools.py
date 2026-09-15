@@ -1,13 +1,13 @@
-import io,json,re,unicodedata,urllib.request,time,subprocess,tempfile,os
+import io,json,re,unicodedata,urllib.request,time
 from datetime import date
 from openpyxl import load_workbook
+from pypdf import PdfReader
 
 DATASET='retea-scolara-2025-2026'
 API=f'https://data.gov.ro/api/3/action/package_show?id={DATASET}'
 NATIONAL_SOURCE=f'https://data.gov.ro/dataset/{DATASET}'
 CURRENT_YEAR='2026-2027';LEGACY_YEAR='2025-2026'
-HEADERS={'User-Agent':'Mozilla/5.0 TransparentaEduRomania/1.4','Accept':'*/*'}
-
+HEADERS={'User-Agent':'Mozilla/5.0 TransparentaEduRomania/1.5','Accept':'*/*'}
 COUNTY_SOURCES=[
  {'county':'SB','name':'Inspectoratul Școlar Județean Sibiu','page':'https://sbisj.ro/despre-noi/retea-scolara/','url':'https://docs.google.com/spreadsheets/d/1wwlcVOQJ-H70lx8oV3Kdthb07HLEUlTy/export?format=xlsx','format':'xlsx','schoolYear':LEGACY_YEAR},
  {'county':'TM','name':'Inspectoratul Școlar Județean Timiș','page':'https://www.isj.tm.edu.ro/retea-scolara','url':'https://www.isj.tm.edu.ro/public/data_files/media/2026/202603251518-Retea%20scolara%20pentru%20site%202026-2027.pdf','format':'pdf','schoolYear':CURRENT_YEAR},
@@ -63,30 +63,21 @@ def parse_xlsx(raw,source_url,forced_county=None,school_year=LEGACY_YEAR):
     return schools
 
 def parse_timisoara_pdf(raw,source_url):
-    with tempfile.TemporaryDirectory() as d:
-        pdf=os.path.join(d,'network.pdf');txt=os.path.join(d,'network.txt')
-        open(pdf,'wb').write(raw)
-        subprocess.run(['pdftotext','-layout',pdf,txt],check=True)
-        text=open(txt,encoding='utf-8',errors='replace').read()
+    reader=PdfReader(io.BytesIO(raw))
+    text='\n'.join((page.extract_text(extraction_mode='layout') or '') for page in reader.pages)
+    if not text.strip():raise RuntimeError('PDF Timiș nu conține text extractibil.')
     schools=[]
-    # PDF-ul oficial are câte un rând logic început de numărul curent și anul 2026-2027.
     blocks=re.split(r'(?m)(?=^\s*\d+\s+2026-2027\s+TM\s+)',text)
     for block in blocks:
         m=re.match(r'^\s*(\d+)\s+2026-2027\s+TM\s+(.*)',block,re.S)
         if not m:continue
         lines=[re.sub(r'\s+',' ',x).strip() for x in block.splitlines() if x.strip()]
         joined=' '.join(lines)
-        # Extragem statutul PJ/AR, care separă denumirea unității de câmpurile administrative.
         sm=re.search(r'\bUnitate de învățământ\s+(PJ|AR)\b',joined,re.I)
         if not sm:continue
-        left=joined[:sm.start()].strip();status=sm.group(1).upper()
-        left=re.sub(r'^\d+\s+2026-2027\s+TM\s+','',left)
-        # Localitatea unității este dificil de separat perfect din PDF; păstrăm textul oficial complet ca nume brut,
-        # fără a inventa câmpuri. Curățarea fină se poate face ulterior pe baza SIRUES/exporturilor tabelare.
-        name=left
-        if len(name)<4:continue
-        sid='tm-2026-'+m.group(1)
-        schools.append({'id':sid,'sirues':None,'name':name,'county':'TM','locality':None,'address':None,'type':None,'medium':None,'status':status,'parentSchool':None,'schoolYear':CURRENT_YEAR,'sourceUrl':source_url,'sourceRow':int(m.group(1))})
+        left=joined[:sm.start()].strip();status=sm.group(1).upper();left=re.sub(r'^\d+\s+2026-2027\s+TM\s+','',left)
+        if len(left)<4:continue
+        schools.append({'id':'tm-2026-'+m.group(1),'sirues':None,'name':left,'county':'TM','locality':None,'address':None,'type':None,'medium':None,'status':status,'parentSchool':None,'schoolYear':CURRENT_YEAR,'sourceUrl':source_url,'sourceRow':int(m.group(1))})
     if len(schools)<100:raise RuntimeError(f'PDF Timiș parsare suspectă: doar {len(schools)} rânduri')
     return schools
 
@@ -121,6 +112,6 @@ if not schools:raise SystemExit('Nu s-a putut importa nicio unitate din sursele 
 current_count=sum(1 for s in schools if s.get('schoolYear')==CURRENT_YEAR);counties=sorted(set(s.get('county') for s in schools if s.get('county')))
 coverage='national-current' if current_count>=1000 and len(counties)>=42 else ('mixed' if len(counties)>1 else 'partial')
 schools.sort(key=lambda x:(x.get('county') or '',x.get('locality') or '',x.get('name') or ''))
-out={'schemaVersion':5,'updatedAt':date.today().isoformat(),'targetSchoolYear':CURRENT_YEAR,'coverage':coverage,'importMode':mode,'count':len(schools),'currentYearCount':current_count,'counties':counties,'officialNetworkPages':OFFICIAL_NETWORK_PAGES,'sources':sources,'schools':schools}
+out={'schemaVersion':6,'updatedAt':date.today().isoformat(),'targetSchoolYear':CURRENT_YEAR,'coverage':coverage,'importMode':mode,'count':len(schools),'currentYearCount':current_count,'counties':counties,'officialNetworkPages':OFFICIAL_NETWORK_PAGES,'sources':sources,'schools':schools}
 with open('data/schools.json','w',encoding='utf-8') as f:json.dump(out,f,ensure_ascii=False,separators=(',',':'))
 print(f'Import finalizat: {len(schools)} unități; {current_count} pentru {CURRENT_YEAR}; județe={len(counties)}; acoperire={coverage}.')
