@@ -1,0 +1,10 @@
+{
+  "name":"Transparență Edu România",
+  "short_name":"Transparență Edu",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#f4f7fb",
+  "theme_color":"#173f73",
+  "lang":"ro",
+  "description":"Platformă pentru transparență și evaluare în educația din România"
+}
