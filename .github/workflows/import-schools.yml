@@ -4,21 +4,47 @@ on:
   workflow_dispatch:
   schedule:
     - cron: '20 4 * * 1'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/import_schools.py'
+      - '.github/workflows/import-schools.yml'
 
 permissions:
   contents: write
 
+concurrency:
+  group: import-schools
+  cancel-in-progress: true
+
 jobs:
   import-schools:
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - run: pip install openpyxl
+      - name: Instalează dependențele
+        run: pip install --disable-pip-version-check openpyxl pypdf
       - name: Descarcă și convertește rețeaua școlară
-        run: python scripts/import_schools.py
+        run: python -u scripts/import_schools.py
+      - name: Validează baza generată
+        run: |
+          python - <<'PY'
+          import json
+          with open('data/schools.json', encoding='utf-8') as f:
+              d=json.load(f)
+          schools=d.get('schools', [])
+          if not schools:
+              raise SystemExit('Baza generată este goală.')
+          if d.get('count') != len(schools):
+              raise SystemExit('Câmpul count nu corespunde listei schools.')
+          print(f"Validare OK: {len(schools)} unități; coverage={d.get('coverage')}")
+          PY
       - name: Salvează baza actualizată
         run: |
           git config user.name "github-actions[bot]"
