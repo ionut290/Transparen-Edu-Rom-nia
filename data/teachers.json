@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-15",
+  "teachers": [
+    {
+      "id": "demo-prof-001",
+      "name": "Profesor demonstrativ",
+      "subject": "Matematică",
+      "schoolId": "demo-bucuresti-001",
+      "county": "București",
+      "locality": "București",
+      "profileStatus": "demo",
+      "officialResults": [],
+      "rating": null,
+      "reviewCount": 0
+    }
+  ]
+}
