@@ -1,10 +1,27 @@
-import io,json,re,unicodedata,urllib.request
+import io,json,re,unicodedata,urllib.request,time
 from datetime import date
 from openpyxl import load_workbook
 
 DATASET='retea-scolara-2025-2026'
 API=f'https://data.gov.ro/api/3/action/package_show?id={DATASET}'
 SOURCE=f'https://data.gov.ro/dataset/{DATASET}'
+HEADERS={'User-Agent':'Mozilla/5.0 TransparentaEduRomania/1.1','Accept':'*/*'}
+
+def download(url,timeout=180,attempts=5):
+    last=None
+    for attempt in range(1,attempts+1):
+        try:
+            print(f'Download {attempt}/{attempts}: {url}')
+            req=urllib.request.Request(url,headers=HEADERS)
+            with urllib.request.urlopen(req,timeout=timeout) as r:
+                data=r.read()
+            if not data: raise RuntimeError('Răspuns gol')
+            return data
+        except Exception as exc:
+            last=exc
+            print(f'Încercarea {attempt} a eșuat: {exc}')
+            if attempt<attempts: time.sleep(min(10*attempt,40))
+    raise RuntimeError(f'Download eșuat după {attempts} încercări: {last}')
 
 def norm(v):
     s='' if v is None else str(v).strip()
@@ -21,12 +38,12 @@ def val(row,i):
     if i is None or i>=len(row) or row[i] is None:return None
     return str(row[i]).strip()
 
-req=urllib.request.Request(API,headers={'User-Agent':'TransparentaEduRomania/1.0'})
-with urllib.request.urlopen(req,timeout=60) as r: meta=json.load(r)['result']
+meta=json.loads(download(API,timeout=180,attempts=5).decode('utf-8'))['result']
 resources=meta.get('resources',[])
 xlsx=next((r for r in resources if str(r.get('format','')).lower()=='xlsx'),None)
 if not xlsx: raise SystemExit('Nu am găsit resursa XLSX oficială.')
-with urllib.request.urlopen(xlsx['url'],timeout=120) as r: raw=r.read()
+raw=download(xlsx['url'],timeout=300,attempts=5)
+if raw[:2]!=b'PK': raise SystemExit('Resursa descărcată nu pare a fi un fișier XLSX valid.')
 wb=load_workbook(io.BytesIO(raw),read_only=True,data_only=True)
 ws=wb[wb.sheetnames[0]]
 rows=ws.iter_rows(values_only=True)
@@ -41,23 +58,18 @@ code_i=pick(headers,'siiir','sirues','cod unit','cod siiir')
 status_i=pick(headers,'statut','status')
 if name_i is None: raise SystemExit(f'Coloana denumire nu a fost găsită: {headers}')
 
-schools=[]
-seen=set()
-for n,row in enumerate(rows,2):
+schools=[];seen=set()
+for row in rows:
     name=val(row,name_i)
     if not name: continue
-    code=val(row,code_i)
-    county=val(row,county_i)
-    locality=val(row,locality_i)
+    code=val(row,code_i);county=val(row,county_i);locality=val(row,locality_i)
     key=code or f'{norm(county)}|{norm(locality)}|{norm(name)}'
     if key in seen: continue
     seen.add(key)
     sid=code or 'ro-'+re.sub(r'[^a-z0-9]+','-',norm(f'{county}-{locality}-{name}')).strip('-')[:120]
-    schools.append({
-      'id':sid,'sirues':code,'name':name,'county':county,'locality':locality,
-      'address':val(row,address_i),'type':val(row,type_i),'medium':val(row,medium_i),
-      'status':val(row,status_i) or 'official','schoolYear':'2025-2026','sourceUrl':SOURCE
-    })
+    schools.append({'id':sid,'sirues':code,'name':name,'county':county,'locality':locality,'address':val(row,address_i),'type':val(row,type_i),'medium':val(row,medium_i),'status':val(row,status_i) or 'official','schoolYear':'2025-2026','sourceUrl':SOURCE})
+
+if len(schools)<1000: raise SystemExit(f'Import suspect: doar {len(schools)} unități. Fișierul existent nu va fi înlocuit.')
 schools.sort(key=lambda x:(x.get('county') or '',x.get('locality') or '',x.get('name') or ''))
 out={'schemaVersion':2,'updatedAt':date.today().isoformat(),'schoolYear':'2025-2026','source':'Ministerul Educației – data.gov.ro, Rețeaua școlară 2025-2026','sourceUrl':SOURCE,'count':len(schools),'schools':schools}
 with open('data/schools.json','w',encoding='utf-8') as f:json.dump(out,f,ensure_ascii=False,separators=(',',':'))
