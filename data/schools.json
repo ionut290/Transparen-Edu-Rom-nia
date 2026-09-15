@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-15",
+  "source": "Rețeaua școlară / SIIIR - Ministerul Educației și Cercetării",
+  "schools": [
+    {
+      "id": "demo-bucuresti-001",
+      "sirues": null,
+      "name": "Unitate de învățământ demonstrativă",
+      "county": "București",
+      "locality": "București",
+      "type": "demo",
+      "status": "demo",
+      "sourceUrl": "https://www.edu.ro/retea-scolara"
+    }
+  ]
+}
