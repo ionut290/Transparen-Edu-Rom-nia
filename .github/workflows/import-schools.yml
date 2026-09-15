@@ -1,0 +1,32 @@
+name: Importă rețeaua școlară oficială
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '20 4 * * 1'
+
+permissions:
+  contents: write
+
+jobs:
+  import-schools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install openpyxl
+      - name: Descarcă și convertește rețeaua școlară
+        run: python scripts/import_schools.py
+      - name: Salvează baza actualizată
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/schools.json
+          if git diff --cached --quiet; then
+            echo "Nicio modificare."
+          else
+            git commit -m "Update official Romanian school network"
+            git push
+          fi
