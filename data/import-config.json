@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Importul rețelei școlare din surse publice oficiale fără a confunda date istorice cu date curente.",
+  "officialSources": [
+    {
+      "id": "minister-retea",
+      "name": "Ministerul Educației și Cercetării - Rețea școlară",
+      "url": "https://www.edu.ro/retea-scolara",
+      "type": "official-directory",
+      "current": true
+    },
+    {
+      "id": "data-gov-ro",
+      "name": "data.gov.ro - Ministerul Educației",
+      "url": "https://data.gov.ro/",
+      "type": "open-data-catalog",
+      "current": false,
+      "note": "Catalogul conține seturi istorice. Anul fiecărui set trebuie păstrat explicit."
+    }
+  ],
+  "schoolFields": ["id","siruesCode","name","county","locality","address","type","ownership","schoolYear","sourceUrl","sourceLabel","verifiedAt","status"],
+  "teacherFields": ["id","name","subject","schoolId","county","locality","officialResults","profileStatus","sources"],
+  "matchingRules": {
+    "schoolPrimaryKeyPreference": ["siruesCode","sourceStableId","normalizedName+county+locality"],
+    "teacherAutomaticMerge": false,
+    "teacherReason": "Numele singur nu este suficient pentru identificarea sigură a unei persoane.",
+    "officialExamMatchRequires": ["name","subject","county_or_school_context","sourceUrl"]
+  }
+}
