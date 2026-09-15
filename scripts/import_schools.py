@@ -5,7 +5,7 @@ from pypdf import PdfReader
 
 DATASET='retea-scolara-2025-2026'; API=f'https://data.gov.ro/api/3/action/package_show?id={DATASET}'; NATIONAL_SOURCE=f'https://data.gov.ro/dataset/{DATASET}'
 CURRENT_YEAR='2026-2027'; LEGACY_YEAR='2025-2026'; REGISTRY='data/school_sources.json'
-HEADERS={'User-Agent':'Mozilla/5.0 TransparentaEduRomania/2.1','Accept':'*/*'}
+HEADERS={'User-Agent':'Mozilla/5.0 TransparentaEduRomania/2.2','Accept':'*/*'}
 FALLBACK={'SB':{'downloadUrl':'https://docs.google.com/spreadsheets/d/1wwlcVOQJ-H70lx8oV3Kdthb07HLEUlTy/export?format=xlsx','format':'xlsx','schoolYear':LEGACY_YEAR},'TM':{'downloadUrl':'https://www.isj.tm.edu.ro/public/data_files/media/2026/202603251518-Retea%20scolara%20pentru%20site%202026-2027.pdf','format':'pdf','schoolYear':CURRENT_YEAR,'parser':'timis-pdf'}}
 
 def download(url,timeout=90,attempts=3):
@@ -59,31 +59,40 @@ def parse_timisoara_pdf(raw,source_url):
  if len(schools)<100:raise RuntimeError(f'PDF Timiș parsare suspectă: {len(schools)}')
  return schools
 
+def clean_pdf_name(line,county):
+ name=re.sub(r'^\s*\d{1,4}\s+(?:2026[-–]2027\s+)?(?:'+re.escape(county)+r'\s+)?','',line,flags=re.I)
+ name=re.sub(r'\s+(?:Unitate de învățământ\s+)?(?:PJ|AR)\b.*$','',name,flags=re.I)
+ # Contact/address columns are frequent in exported SIIIR PDFs and must never become part of a school name.
+ name=re.split(r'\b(?:Cod\s+poștal|Cod\s+postal|Telefon|Fax|E-mail|Email|Strada|Str\.|Localitatea|Adres[ăa])\s*:',name,1,flags=re.I)[0]
+ name=re.sub(r'\s+\d{6}\s+0\d{8,}\b.*$','',name)
+ return re.sub(r'\s+',' ',name).strip(' -|,;')
+
+def valid_school_name(name):
+ n=norm(name)
+ if len(name)<7 or len(name)>180:return False
+ if any(x in n for x in ('cod postal','telefon','email','e mail','inspectoratul scolar','ministerul educatiei')):return False
+ if '@' in name or re.search(r'\b(?:www\.|https?://)',name,re.I):return False
+ if re.search(r'\b0\d{8,}\b',name):return False
+ return bool(re.search(r'\b(scoala|liceu|liceul|colegiu|colegiul|gradinita|seminar|club|palat|centru|centrul)\b',n))
+
 def parse_siiir_pdf(raw,source_url,county,school_year=CURRENT_YEAR):
  text=pdf_text(raw)
  if len(text.strip())<500:raise RuntimeError('PDF fără text extractibil suficient')
- lines=[re.sub(r'\s+',' ',x).strip() for x in text.splitlines() if x.strip()]
- schools=[]; seen=set(); row=0
- school_words=r'(SCOALA|ȘCOALA|LICEUL|COLEGIUL|GRADINITA|GRĂDINIȚA|SEMINARUL|CLUBUL|PALATUL|CENTRUL|SCOALA PROFESIONALA|ȘCOALA PROFESIONALĂ)'
- noise=('RETEA SCOLARA','REȚEA ȘCOLARĂ','INSPECTORATUL','MINISTERUL','PAGINA','JUDETUL','JUDEȚUL')
+ lines=[re.sub(r'\s+',' ',x).strip() for x in text.splitlines() if x.strip()]; schools=[]; seen=set(); row=0
  for line in lines:
-  up=line.upper()
-  if not re.search(school_words,up):continue
-  if any(n in up for n in noise):continue
-  # Prefer SIIIR numeric codes when present, otherwise preserve a conservative school-name line.
-  codes=re.findall(r'(?<!\d)(\d{5,12})(?!\d)',line); code=codes[0] if codes else None
-  name=line
-  # Remove leading row/year/county/code columns without touching numbers inside school names.
-  name=re.sub(r'^\s*\d{1,4}\s+(?:2026[-–]2027\s+)?(?:'+re.escape(county)+r'\s+)?','',name,flags=re.I)
-  if code:name=re.sub(r'^\s*'+re.escape(code)+r'\s+','',name)
-  name=re.sub(r'\s+(?:Unitate de învățământ\s+)?(?:PJ|AR)\b.*$','',name,flags=re.I).strip(' -|')
-  if len(name)<5 or len(name)>260:continue
-  key=(code or norm(name))
+  name=clean_pdf_name(line,county)
+  if not valid_school_name(name):continue
+  codes=re.findall(r'(?<!\d)(\d{7,12})(?!\d)',line); code=codes[0] if codes else None
+  # Postal codes are six digits, so they are deliberately excluded from SIIIR extraction.
+  if code and code in name:name=re.sub(r'^\s*'+re.escape(code)+r'\s+','',name).strip()
+  if not valid_school_name(name):continue
+  key=code or norm(name)
   if key in seen:continue
-  seen.add(key); row+=1
-  sid=code or f'{county.lower()}-{school_year[:4]}-{row}'
+  seen.add(key); row+=1; sid=code or f'{county.lower()}-{school_year[:4]}-{row}'
   schools.append({'id':sid,'sirues':code,'name':name,'county':county,'locality':None,'address':None,'type':None,'medium':None,'status':'official','parentSchool':None,'schoolYear':school_year,'sourceUrl':source_url,'sourceRow':row})
  if len(schools)<20:raise RuntimeError(f'Parser SIIIR PDF suspect: doar {len(schools)} unități')
+ bad=sum(1 for s in schools if not valid_school_name(s['name']))
+ if bad:raise RuntimeError(f'Validare nume eșuată: {bad} înregistrări suspecte')
  return schools
 
 def registry_sources():
@@ -124,6 +133,6 @@ except Exception as exc:print(f'Fallback național indisponibil: {exc}')
 schools=dedupe(schools)
 if not schools:raise SystemExit('Nu s-a putut importa nicio unitate din sursele oficiale.')
 current=sum(1 for s in schools if s.get('schoolYear')==CURRENT_YEAR); counties=sorted(set(s.get('county') for s in schools if s.get('county'))); coverage='national-current' if current>=1000 and len(counties)>=42 else ('mixed' if len(counties)>1 else 'partial'); schools.sort(key=lambda x:(x.get('county') or '',x.get('locality') or '',x.get('name') or ''))
-out={'schemaVersion':8,'updatedAt':date.today().isoformat(),'targetSchoolYear':CURRENT_YEAR,'coverage':coverage,'importMode':'registry-first','count':len(schools),'currentYearCount':current,'counties':counties,'officialNetworkPages':pages,'sources':sources,'schools':schools}
+out={'schemaVersion':9,'updatedAt':date.today().isoformat(),'targetSchoolYear':CURRENT_YEAR,'coverage':coverage,'importMode':'registry-first','count':len(schools),'currentYearCount':current,'counties':counties,'officialNetworkPages':pages,'sources':sources,'schools':schools}
 with open('data/schools.json','w',encoding='utf-8') as f:json.dump(out,f,ensure_ascii=False,separators=(',',':'))
 print(f'Import finalizat: {len(schools)} unități; {current} pentru {CURRENT_YEAR}; județe={len(counties)}; acoperire={coverage}.')
