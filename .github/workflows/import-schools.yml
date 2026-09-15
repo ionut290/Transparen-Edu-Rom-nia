@@ -8,6 +8,7 @@ on:
     branches: [main]
     paths:
       - 'scripts/import_schools.py'
+      - 'data/school_sources.json'
       - '.github/workflows/import-schools.yml'
 
 permissions:
