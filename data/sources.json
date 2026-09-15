@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-15",
+  "schoolYear": "2026-2027",
+  "status": "collecting",
+  "note": "Rețeaua 2026-2027 este publicată și actualizată de autoritățile locale și inspectoratele școlare. Nu marcăm registrul drept complet până la agregarea și verificarea tuturor județelor și a municipiului București.",
+  "sources": [
+    {
+      "id": "mec-retea-scolara",
+      "authority": "Ministerul Educației și Cercetării",
+      "title": "Rețea școlară",
+      "url": "https://www.edu.ro/retea-scolara",
+      "type": "official-national-reference"
+    },
+    {
+      "id": "siiir-retea",
+      "authority": "SIIIR",
+      "title": "Modulul Rețea școlară",
+      "url": "https://www.siiir.edu.ro/manuale-si-ghiduri/15-modulul-retea-scolara-ghid-de-utilizare",
+      "type": "official-system-reference"
+    },
+    {
+      "id": "mec-calendar-2026-2027",
+      "authority": "Ministerul Educației și Cercetării",
+      "title": "Calendar organizare rețea școlară 2026-2027",
+      "url": "https://www.edu.ro/sites/default/files/PO_Calendar_organizare_retea_scolara_2026-2027.pdf",
+      "type": "official-methodology"
+    }
+  ]
+}
