@@ -13,11 +13,11 @@ permissions:
   contents: write
 concurrency:
   group: import-teachers
-  cancel-in-progress: true
+  cancel-in-progress: false
 jobs:
   import-teachers:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
