@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-09-16",
+  "targetYear": 2026,
+  "policy": "Import only public professional data from official education sources. School associations must come from an explicit official current-placement field; never infer them from name alone.",
+  "sources": [
+    {
+      "id": "definitivat-2026",
+      "type": "definitivat",
+      "authority": "Ministerul Educației și Cercetării",
+      "scope": "national-42-jurisdictions",
+      "baseUrl": "https://definitivat.edu.ro/generated/files/j/{county}/index.html",
+      "year": 2026,
+      "status": "verified",
+      "fields": ["name","examSubject","writtenGrade","examGrade","currentLocality","currentSchool","teachingRole"],
+      "schoolLinkAllowed": true,
+      "note": "Rapoartele oficiale județene includ încadrarea curentă (localitate, unitate/instituție și funcție didactică), acolo unde este publicată."
+    },
+    {
+      "id": "titularizare-2026",
+      "type": "titularizare",
+      "authority": "Ministerul Educației și Cercetării",
+      "scope": "national-42-jurisdictions",
+      "baseUrl": "https://titularizare.edu.ro/2026/generated/files/j/judete.html",
+      "year": 2026,
+      "status": "verified",
+      "schoolLinkAllowed": false,
+      "note": "Rezultatele profesionale pot fi importate, dar asocierea cu școala nu se face decât dacă raportul utilizat indică explicit unitatea relevantă."
+    }
+  ]
+}
