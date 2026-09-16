@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
 """Import public professional teacher data from official Romanian education reports.
-Teacher-school links are only created when the official source explicitly names the placement.
+Supports COUNTY_BATCH so GitHub Actions can process up to 10 counties per job.
 """
-import json,re,urllib.request,urllib.parse,time,html as H
+import json,re,urllib.request,urllib.parse,time,html as H,os
 from datetime import date
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'data'/'teachers.json'
-COUNTIES=['AB','AR','AG','BC','BH','BN','BT','BV','BR','B','BZ','CS','CL','CJ','CT','CV','DB','DJ','GL','GR','GJ','HR','HD','IL','IS','IF','MM','MH','MS','NT','OT','PH','SM','SJ','SB','SV','TR','TM','TL','VS','VL','VN']
-UA={'User-Agent':'Mozilla/5.0 (compatible; TransparenEdu/1.2)','Accept':'text/html,application/xhtml+xml'}
+ALL_COUNTIES=['AB','AR','AG','BC','BH','BN','BT','BV','BR','B','BZ','CS','CL','CJ','CT','CV','DB','DJ','GL','GR','GJ','HR','HD','IL','IS','IF','MM','MH','MS','NT','OT','PH','SM','SJ','SB','SV','TR','TM','TL','VS','VL','VN']
+COUNTIES=[x.strip() for x in os.getenv('COUNTY_BATCH','').split(',') if x.strip()] or ALL_COUNTIES
+UA={'User-Agent':'Mozilla/5.0 (compatible; TransparenEdu/1.3)','Accept':'text/html,application/xhtml+xml'}
 
-def get(url,retries=4,timeout=30):
+def get(url,retries=2,timeout=12):
     last=None
     for attempt in range(retries):
         try:
@@ -18,7 +19,7 @@ def get(url,retries=4,timeout=30):
             with urllib.request.urlopen(req,timeout=timeout) as r:return r.read().decode('utf-8','replace')
         except Exception as e:
             last=e
-            if attempt+1<retries:time.sleep(2**attempt)
+            if attempt+1<retries:time.sleep(1)
     raise last
 
 def text(src):
@@ -34,7 +35,7 @@ def candidate_pages(county):
 def find_result_page(county):
     for u in candidate_pages(county):
         try:
-            t=text(get(u,2,20))
+            t=text(get(u))
             if len(t)>300 and any(k in t for k in ('Incadrare','Încadrare','PROFESOR','Profesor')):return u,t
         except Exception:pass
     return None,None
@@ -54,18 +55,20 @@ def parse(county,url,t):
     return rows
 
 def main():
-    allrows=[];stats={}
+    old={}
+    if OUT.exists():
+        try:old=json.loads(OUT.read_text(encoding='utf-8'))
+        except json.JSONDecodeError:old={}
+    kept=[x for x in old.get('teachers',[]) if x.get('county') not in COUNTIES]
+    stats=dict(old.get('importStats',{}));fresh=[]
+    print('BATCH',','.join(COUNTIES),flush=True)
     for c in COUNTIES:
         try:
             u,t=find_result_page(c)
             if not u:stats[c]={'status':'page-not-resolved','count':0};print(c,'NO PAGE',flush=True);continue
-            rows=parse(c,u,t);allrows.extend(rows);stats[c]={'status':'ok' if rows else 'parsed-zero','count':len(rows),'url':u};print(c,len(rows),u,flush=True)
+            rows=parse(c,u,t);fresh.extend(rows);stats[c]={'status':'ok' if rows else 'parsed-zero','count':len(rows),'url':u};print(c,len(rows),u,flush=True)
         except Exception as e:stats[c]={'status':'error','count':0,'error':str(e)[:180]};print(c,'ERROR',e,flush=True)
-    if not allrows and OUT.exists():
-        try:
-            old=json.loads(OUT.read_text(encoding='utf-8'))
-            if old.get('count',0)>0:raise SystemExit('Import returned zero records; preserving previous database.')
-        except json.JSONDecodeError:pass
-    data={'schemaVersion':5,'updatedAt':date.today().isoformat(),'sourceYear':2026,'coverage':'official-education-sources','linkingPolicy':'School links require an explicit official current-placement field and a separate exact school-registry match; name-only teacher matching is forbidden.','count':len(allrows),'jurisdictionsAttempted':len(COUNTIES),'importStats':stats,'teachers':allrows}
-    OUT.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8');print('TOTAL',len(allrows),flush=True)
+    allrows=kept+fresh
+    data={'schemaVersion':6,'updatedAt':date.today().isoformat(),'sourceYear':2026,'coverage':'official-education-sources','linkingPolicy':'School links require an explicit official current-placement field and a separate exact school-registry match; name-only teacher matching is forbidden.','count':len(allrows),'jurisdictionsAttempted':len(stats),'lastBatch':COUNTIES,'importStats':stats,'teachers':allrows}
+    OUT.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8');print('BATCH TOTAL',len(fresh),'DATABASE TOTAL',len(allrows),flush=True)
 if __name__=='__main__':main()
