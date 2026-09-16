@@ -1,11 +1,15 @@
 {
-  "schemaVersion": 3,
+  "schemaVersion": 6,
   "updatedAt": "2026-09-16",
   "sourceYear": 2026,
-  "coverage": "official-definitivat",
+  "coverage": "official-education-sources",
   "linkingPolicy": "School links require an explicit official current-placement field and a separate exact school-registry match; name-only teacher matching is forbidden.",
   "count": 0,
   "jurisdictionsAttempted": 42,
+  "lastBatch": [
+    "VL",
+    "VN"
+  ],
   "importStats": {
     "AB": {
       "status": "error",
@@ -208,14 +212,12 @@
       "error": "<urlopen error timed out>"
     },
     "VL": {
-      "status": "error",
-      "count": 0,
-      "error": "<urlopen error timed out>"
+      "status": "page-not-resolved",
+      "count": 0
     },
     "VN": {
-      "status": "error",
-      "count": 0,
-      "error": "<urlopen error timed out>"
+      "status": "page-not-resolved",
+      "count": 0
     }
   },
   "teachers": []
