@@ -1,15 +1,21 @@
 {
-  "schemaVersion": 1,
-  "updatedAt": "2026-09-15",
+  "schemaVersion": 2,
+  "updatedAt": "2026-09-16",
+  "linkingPolicy": "A teacher is linked to a school only when an official source or a verified school/teacher claim establishes that relationship. Name-only matching is forbidden.",
+  "officialResultSources": [
+    {"type":"titularizare","year":2026,"authority":"Ministerul Educației și Cercetării","url":"https://www.edu.ro/press_rel_57_26_rezultate_finale_proba_scrisa_titularizare"},
+    {"type":"definitivat","year":2026,"authority":"Ministerul Educației și Cercetării","url":"https://www.edu.ro/press_rel_55_26_rezultate_finale_proba_scrisa_promovare_definitivat"}
+  ],
   "teachers": [
     {
       "id": "demo-prof-001",
       "name": "Profesor demonstrativ",
       "subject": "Matematică",
-      "schoolId": "demo-bucuresti-001",
+      "schoolId": null,
       "county": "București",
       "locality": "București",
       "profileStatus": "demo",
+      "schoolLinkStatus": "unverified",
       "officialResults": [],
       "rating": null,
       "reviewCount": 0
