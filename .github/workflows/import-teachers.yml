@@ -1,0 +1,50 @@
+name: Importă datele profesionale oficiale
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '40 4 * * 1'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/import_teachers.py'
+      - 'data/teacher_sources.json'
+      - '.github/workflows/import-teachers.yml'
+permissions:
+  contents: write
+concurrency:
+  group: import-teachers
+  cancel-in-progress: true
+jobs:
+  import-teachers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Importă rapoartele oficiale 2026
+        run: python -u scripts/import_teachers.py
+      - name: Validează datele
+        run: |
+          python - <<'PY'
+          import json
+          d=json.load(open('data/teachers.json',encoding='utf-8'))
+          assert d.get('schemaVersion',0)>=3
+          assert d.get('jurisdictionsAttempted')==42
+          for x in d.get('teachers',[]):
+              assert x.get('name') and x.get('schoolNameOfficial')
+              assert x.get('schoolLinkStatus')=='official-placement-unmatched'
+          print('Validare OK:',d.get('count'), 'profesori/candidați cu încadrare oficială publică')
+          PY
+      - name: Salvează baza actualizată
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/teachers.json
+          if git diff --cached --quiet; then
+            echo "Nicio modificare."
+          else
+            git commit -m "Update official Romanian teacher data"
+            git push
+          fi
