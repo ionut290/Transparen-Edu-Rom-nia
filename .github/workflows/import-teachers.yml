@@ -17,27 +17,43 @@ concurrency:
 jobs:
   import-teachers:
     runs-on: ubuntu-latest
-    timeout-minutes: 180
+    timeout-minutes: 45
+    strategy:
+      max-parallel: 1
+      fail-fast: false
+      matrix:
+        batch:
+          - 'AB,AR,AG,BC,BH,BN,BT,BV,BR,B'
+          - 'BZ,CS,CL,CJ,CT,CV,DB,DJ,GL,GR'
+          - 'GJ,HR,HD,IL,IS,IF,MM,MH,MS,NT'
+          - 'OT,PH,SM,SJ,SB,SV,TR,TM,TL,VS'
+          - 'VL,VN'
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Importă rapoartele oficiale 2026
+      - name: Sincronizează baza înainte de lot
+        run: git pull --rebase origin main
+      - name: Importă lotul de județe
+        env:
+          COUNTY_BATCH: ${{ matrix.batch }}
         run: python -u scripts/import_teachers.py
-      - name: Validează datele
+      - name: Validează lotul
         run: |
           python - <<'PY'
           import json
           d=json.load(open('data/teachers.json',encoding='utf-8'))
-          assert d.get('schemaVersion',0)>=3
-          assert d.get('jurisdictionsAttempted')==42
+          assert d.get('schemaVersion',0)>=6
+          assert len(d.get('lastBatch',[])) <= 10
           for x in d.get('teachers',[]):
               assert x.get('name') and x.get('schoolNameOfficial')
               assert x.get('schoolLinkStatus')=='official-placement-unmatched'
-          print('Validare OK:',d.get('count'), 'profesori/candidați cu încadrare oficială publică')
+          print('Validare OK. Lot:', ', '.join(d.get('lastBatch',[])), 'Total DB:', d.get('count'))
           PY
-      - name: Salvează baza actualizată
+      - name: Salvează lotul
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -45,6 +61,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "Nicio modificare."
           else
-            git commit -m "Update official Romanian teacher data"
+            git commit -m "Update teacher data batch ${{ matrix.batch }}"
+            git pull --rebase origin main
             git push
           fi
