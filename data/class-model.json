@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "description": "Model demo pentru clase. Nu conține date reale despre minori.",
+  "class": {
+    "id": "schoolId:VIII-B",
+    "schoolId": "schoolId",
+    "name": "VIII B",
+    "schoolYear": "2026-2027",
+    "homeroomTeacher": {"userId": null, "displayName": null},
+    "students": [],
+    "parents": [],
+    "parentStudentLinks": [],
+    "moderators": []
+  },
+  "member": {
+    "userId": "uid",
+    "displayName": "Pseudonim sau nume autorizat",
+    "role": "student|parent|homeroom_teacher|school_admin",
+    "verified": false
+  },
+  "parentStudentLink": {
+    "parentUserId": "uid-parent",
+    "studentUserId": "uid-student",
+    "relationship": "parent_or_guardian",
+    "verified": false
+  },
+  "privacy": {
+    "publicMemberLists": false,
+    "parentChildLinksPublic": false,
+    "classAccessRequiresMembership": true
+  }
+}
