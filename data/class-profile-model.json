@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "description": "Model demo pentru profilul clasei; fără date reale despre minori.",
+  "classProfile": {
+    "classId": "schoolId:VIII-B",
+    "schoolYear": "2026-2027",
+    "subjects": [],
+    "teachers": [],
+    "timetable": {
+      "luni": [], "marti": [], "miercuri": [], "joi": [], "vineri": []
+    },
+    "homework": [],
+    "calendar": [],
+    "announcements": []
+  },
+  "subject": {"id":"subject-id","name":"Matematică","teacherId":null},
+  "timetableEntry": {"subjectId":"subject-id","start":"08:00","end":"08:50","room":null},
+  "homeworkItem": {"id":"id","subjectId":"subject-id","title":"","details":"","dueDate":"YYYY-MM-DD","createdByRole":"homeroom_teacher"},
+  "calendarEvent": {"id":"id","title":"","date":"YYYY-MM-DD","type":"test|meeting|activity|other","visibility":"class"},
+  "privacy": {"containsGrades":false,"containsAbsences":false,"containsSensitiveStudentData":false}
+}
