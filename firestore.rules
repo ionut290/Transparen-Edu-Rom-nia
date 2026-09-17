@@ -1,0 +1,51 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function me() { return get(/databases/$(database)/documents/users/$(request.auth.uid)); }
+    function schoolId() { return me().data.schoolId; }
+    function moderator() { return signedIn() && me().data.role in ['moderator','director','admin']; }
+
+    match /users/{uid} {
+      allow read, create, update: if signedIn() && request.auth.uid == uid;
+      allow delete: if false;
+    }
+
+    match /schools/{sid}/posts/{postId} {
+      allow read: if signedIn() && schoolId() == sid && resource.data.status == 'published';
+      allow create: if signedIn() && schoolId() == sid
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.schoolId == sid
+        && request.resource.data.type in ['discussion','idea','poll']
+        && request.resource.data.status == 'published';
+      allow update, delete: if moderator();
+    }
+
+    match /nationalPosts/{postId} {
+      allow read: if signedIn() && resource.data.status == 'published';
+      allow create: if signedIn()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.type in ['discussion','idea','poll']
+        && request.resource.data.status == 'published';
+      allow update, delete: if moderator();
+    }
+
+    match /privateRequests/{requestId} {
+      allow create: if signedIn()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.schoolId == schoolId()
+        && request.resource.data.type in ['help','report'];
+      allow read: if signedIn() && (resource.data.authorUid == request.auth.uid || moderator());
+      allow update: if moderator();
+      allow delete: if false;
+    }
+
+    match /reports/{reportId} {
+      allow create: if signedIn() && request.resource.data.reporterUid == request.auth.uid;
+      allow read, update: if moderator();
+      allow delete: if false;
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+}
