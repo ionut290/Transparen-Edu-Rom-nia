@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "description": "Fluxul de roluri și aprobări pentru Transparență Edu. Model demo, fără date reale despre minori.",
+  "roles": {
+    "director": {
+      "canCreateSchool": true,
+      "canCreateClasses": true,
+      "canInviteTeachers": true,
+      "canAssignHomeroomTeacher": true,
+      "requiresPlatformVerification": true
+    },
+    "homeroom_teacher": {
+      "canApproveStudents": true,
+      "canApproveParentLinks": true,
+      "canManageOwnClass": true,
+      "requiresDirectorAssignment": true
+    },
+    "teacher": {
+      "canAccessAssignedClasses": true,
+      "requiresDirectorInvitation": true
+    },
+    "student": {
+      "canRequestClassMembership": true,
+      "membershipRequiresHomeroomApproval": true
+    },
+    "parent": {
+      "canRequestStudentLink": true,
+      "studentLinkRequiresApproval": true
+    }
+  },
+  "requests": {
+    "classMembership": {
+      "fields": ["requestId", "schoolId", "classId", "studentUserId", "status", "createdAt", "reviewedBy", "reviewedAt"],
+      "statuses": ["pending", "approved", "rejected"]
+    },
+    "parentStudentLink": {
+      "fields": ["requestId", "schoolId", "classId", "parentUserId", "studentUserId", "relationship", "status", "createdAt", "reviewedBy", "reviewedAt"],
+      "statuses": ["pending", "approved", "rejected"]
+    }
+  },
+  "security": {
+    "selfAssignPrivilegedRole": false,
+    "publicStudentList": false,
+    "publicParentList": false,
+    "publicParentStudentLinks": false,
+    "directorVerificationRequired": true,
+    "teacherInvitationRequired": true
+  }
+}
