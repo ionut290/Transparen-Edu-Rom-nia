@@ -1,30 +1,45 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "description": "Fluxul de roluri și aprobări pentru Transparență Edu. Model demo, fără date reale despre minori.",
+  "relationships": {
+    "schoolToClasses": "one-to-many",
+    "classToStudents": "one-to-many",
+    "homeroomTeacherToClasses": "one-to-many",
+    "parentToStudents": "many-to-many",
+    "studentToParentsOrGuardians": "many-to-many"
+  },
   "roles": {
     "director": {
       "canCreateSchool": true,
       "canCreateClasses": true,
       "canInviteTeachers": true,
       "canAssignHomeroomTeacher": true,
+      "canAssignOneHomeroomTeacherToMultipleClasses": true,
       "requiresPlatformVerification": true
     },
     "homeroom_teacher": {
+      "canHaveMultipleClasses": true,
+      "canHaveMultipleStudents": true,
       "canApproveStudents": true,
       "canApproveParentLinks": true,
-      "canManageOwnClass": true,
+      "canManageAssignedClasses": true,
       "requiresDirectorAssignment": true
     },
     "teacher": {
-      "canAccessAssignedClasses": true,
+      "canAccessMultipleAssignedClasses": true,
       "requiresDirectorInvitation": true
     },
     "student": {
       "canRequestClassMembership": true,
+      "canHaveMultipleParentsOrGuardians": true,
       "membershipRequiresHomeroomApproval": true
     },
     "parent": {
       "canRequestStudentLink": true,
+      "canHaveMultipleChildren": true,
+      "canHaveMultipleChildrenInSameClass": true,
+      "canHaveChildrenInDifferentClasses": true,
+      "canHaveChildrenInDifferentSchools": true,
       "studentLinkRequiresApproval": true
     }
   },
@@ -34,6 +49,7 @@
       "statuses": ["pending", "approved", "rejected"]
     },
     "parentStudentLink": {
+      "cardinality": "one request per parent-student relationship",
       "fields": ["requestId", "schoolId", "classId", "parentUserId", "studentUserId", "relationship", "status", "createdAt", "reviewedBy", "reviewedAt"],
       "statuses": ["pending", "approved", "rejected"]
     }
