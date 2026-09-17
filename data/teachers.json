@@ -7,69 +7,77 @@
   "count": 0,
   "jurisdictionsAttempted": 42,
   "lastBatch": [
-    "VL",
-    "VN"
+    "AB",
+    "AR",
+    "AG",
+    "BC",
+    "BH",
+    "BN",
+    "BT",
+    "BV",
+    "BR",
+    "B"
   ],
   "importStats": {
     "AB": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>",
-      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/AB/ci_nip/index.html"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/AB/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "AR": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>",
-      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/AR/ci_nip/index.html"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/AR/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "AG": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>",
-      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/AG/ci_nip/index.html"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/AG/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "BC": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>",
-      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BC/ci_nip/index.html"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/BC/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "BH": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>",
-      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BH/ci_nip/index.html"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/BH/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5003 ms: Timeout was reached\n"
     },
     "BN": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>",
-      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BN/ci_nip/index.html"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/BN/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "BT": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>",
-      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BT/ci_nip/index.html"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/BT/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5003 ms: Timeout was reached\n"
     },
     "BV": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>",
-      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BV/ci_nip/index.html"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/BV/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "BR": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>",
-      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BR/ci_nip/index.html"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/BR/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "B": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>",
-      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/B/ci_nip/index.html"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/B/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "BZ": {
       "status": "error",
