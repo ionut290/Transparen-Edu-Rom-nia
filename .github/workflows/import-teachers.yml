@@ -1,67 +1,34 @@
 name: Importă datele profesionale oficiale
+
+# Importul automat din serverele oficiale a fost dezactivat deoarece conexiunile
+# din GitHub Actions sunt instabile și pot suprascrie baza verificată manual.
+# Workflow-ul rămâne disponibil doar pentru pornire manuală după verificarea sursei.
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '40 4 * * 1'
-  push:
-    branches: [main]
-    paths:
-      - 'scripts/import_teachers.py'
-      - 'data/teacher_sources.json'
-      - '.github/workflows/import-teachers.yml'
+
 permissions:
-  contents: write
-concurrency:
-  group: import-teachers
-  cancel-in-progress: false
+  contents: read
+
 jobs:
-  import-teachers:
+  verify-teacher-dataset:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
-    strategy:
-      max-parallel: 1
-      fail-fast: false
-      matrix:
-        batch:
-          - 'AB,AR,AG,BC,BH,BN,BT,BV,BR,B'
-          - 'BZ,CS,CL,CJ,CT,CV,DB,DJ,GL,GR'
-          - 'GJ,HR,HD,IL,IS,IF,MM,MH,MS,NT'
-          - 'OT,PH,SM,SJ,SB,SV,TR,TM,TL,VS'
-          - 'VL,VN'
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Sincronizează baza înainte de lot
-        run: git pull --rebase origin main
-      - name: Importă lotul de județe
-        env:
-          COUNTY_BATCH: ${{ matrix.batch }}
-        run: python -u scripts/import_teachers.py
-      - name: Validează lotul
+      - name: Validează baza verificată
         run: |
           python - <<'PY'
           import json
           d=json.load(open('data/teachers.json',encoding='utf-8'))
-          assert d.get('schemaVersion',0)>=6
-          assert len(d.get('lastBatch',[])) <= 10
-          for x in d.get('teachers',[]):
-              assert x.get('name') and x.get('schoolNameOfficial')
-              assert x.get('schoolLinkStatus')=='official-placement-unmatched'
-          print('Validare OK. Lot:', ', '.join(d.get('lastBatch',[])), 'Total DB:', d.get('count'))
+          assert d.get('schemaVersion',0) >= 10
+          teachers=d.get('teachers',[])
+          assert d.get('count') == len(teachers)
+          for x in teachers:
+              assert x.get('name')
+              assert x.get('schoolId')
+              assert x.get('schoolNameOfficial')
+              assert x.get('schoolLinkStatus') == 'verified-exact-registry-match'
+              assert x.get('officialResults')
+              for result in x['officialResults']:
+                  assert result.get('sourceUrl')
+          print('Baza verificată este validă. Total profesori:', len(teachers))
           PY
-      - name: Salvează lotul
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/teachers.json
-          if git diff --cached --quiet; then
-            echo "Nicio modificare."
-          else
-            git commit -m "Update teacher data batch ${{ matrix.batch }}"
-            git pull --rebase origin main
-            git push
-          fi
