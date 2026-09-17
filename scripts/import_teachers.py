@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Import public professional teacher data from official Definitivat 2026 reports.
 Runs in COUNTY_BATCH groups and preserves previous batches.
-Uses curl with IPv4 and paginated official report pages to avoid urllib/GitHub runner stalls.
+Uses the official ci_nip index first; paginated pages are only a fallback.
 """
 import json,re,subprocess,time,html as H,os
 from html.parser import HTMLParser
@@ -11,7 +11,7 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'data'/'teachers.json'
 ALL_COUNTIES=['AB','AR','AG','BC','BH','BN','BT','BV','BR','B','BZ','CS','CL','CJ','CT','CV','DB','DJ','GL','GR','GJ','HR','HD','IL','IS','IF','MM','MH','MS','NT','OT','PH','SM','SJ','SB','SV','TR','TM','TL','VS','VL','VN']
 COUNTIES=[x.strip() for x in os.getenv('COUNTY_BATCH','').split(',') if x.strip()] or ALL_COUNTIES
-UA='Mozilla/5.0 (compatible; TransparenEdu/1.5)'
+UA='Mozilla/5.0 (compatible; TransparenEdu/1.6)'
 
 class TableParser(HTMLParser):
     def __init__(self):
@@ -32,17 +32,11 @@ class TableParser(HTMLParser):
             self.row=None
 
 def get(url):
-    last='download failed'
-    for attempt in range(2):
-        try:
-            p=subprocess.run(['curl','-4','-L','--fail','--silent','--show-error','--connect-timeout','8','--max-time','20','--retry','1','--retry-delay','1','-A',UA,url],capture_output=True,timeout=28)
-            if p.returncode==0 and len(p.stdout)>200:return p.stdout.decode('utf-8','replace')
-            last=(p.stderr.decode('utf-8','replace') or f'curl exit {p.returncode}').strip()
-        except Exception as e:last=str(e)
-        time.sleep(1)
-    raise RuntimeError(last[:180])
+    p=subprocess.run(['curl','-4','-L','--fail','--silent','--show-error','--connect-timeout','5','--max-time','12','-A',UA,url],capture_output=True,timeout=18)
+    if p.returncode==0 and len(p.stdout)>200:return p.stdout.decode('utf-8','replace')
+    raise RuntimeError((p.stderr.decode('utf-8','replace') or f'curl exit {p.returncode}')[:180])
 
-def base_url(county):return f'https://www.definitivat.edu.ro/2026/generated/files/j/{county}/ci_nip/'
+def base_url(county):return f'https://definitivat.edu.ro/2026/generated/files/j/{county}/ci_nip/'
 def clean(s):return re.sub(r'\s+',' ',H.unescape(str(s or ''))).strip()
 
 def placement_parts(cell):
@@ -65,22 +59,29 @@ def parse(county,url,src):
 
 def import_county(c):
     base=base_url(c);found={};errors=[]
-    # The official index can be slow from cloud runners. Page files are independently accessible.
-    for n in range(1,41):
+    # Search engines and browsers confirm that the official index itself contains candidate rows.
+    index=base+'index.html'
+    try:
+        src=get(index)
+        for r in parse(c,index,src):found[r['id']]=r
+        if found:return list(found.values()),None
+    except Exception as e:errors.append(str(e))
+    # Fallback for counties whose index delegates to page_N files.
+    misses=0
+    for n in range(1,21):
         u=f'{base}page_{n}.html'
         try:src=get(u)
         except Exception as e:
-            errors.append(str(e));
-            if n==1:continue
-            # two consecutive missing/timed-out pages after data usually means the report ended
-            if found and len(errors)>=2:break
+            errors.append(str(e));misses+=1
+            if misses>=2:break
             continue
         rows=parse(c,u,src)
         if not rows:
-            if found:break
+            misses+=1
+            if misses>=2:break
             continue
+        misses=0
         for r in rows:found[r['id']]=r
-        errors=[]
     return list(found.values()),errors[-1] if errors else None
 
 def main():
@@ -100,6 +101,6 @@ def main():
         except Exception as e:
             stats[c]={'status':'error','count':0,'error':str(e)[:180],'baseUrl':base_url(c)};print(c,'ERROR',e,flush=True)
     allrows=kept+fresh
-    data={'schemaVersion':8,'updatedAt':date.today().isoformat(),'sourceYear':2026,'coverage':'official-definitivat-current-placement','linkingPolicy':'School links require an explicit official current-placement field and a separate exact school-registry match; name-only teacher matching is forbidden.','count':len(allrows),'jurisdictionsAttempted':len(stats),'lastBatch':COUNTIES,'importStats':stats,'teachers':allrows}
+    data={'schemaVersion':9,'updatedAt':date.today().isoformat(),'sourceYear':2026,'coverage':'official-definitivat-current-placement','linkingPolicy':'School links require an explicit official current-placement field and a separate exact school-registry match; name-only teacher matching is forbidden.','count':len(allrows),'jurisdictionsAttempted':len(stats),'lastBatch':COUNTIES,'importStats':stats,'teachers':allrows}
     OUT.write_text(json.dumps(data,ensure_ascii=False,indent=2),encoding='utf-8');print('BATCH TOTAL',len(fresh),'DATABASE TOTAL',len(allrows),flush=True)
 if __name__=='__main__':main()
