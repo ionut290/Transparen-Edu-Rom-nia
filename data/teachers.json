@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 7,
+  "schemaVersion": 9,
   "updatedAt": "2026-09-17",
   "sourceYear": 2026,
   "coverage": "official-definitivat-current-placement",
@@ -7,16 +7,16 @@
   "count": 0,
   "jurisdictionsAttempted": 42,
   "lastBatch": [
-    "AB",
-    "AR",
-    "AG",
-    "BC",
-    "BH",
-    "BN",
-    "BT",
-    "BV",
-    "BR",
-    "B"
+    "GJ",
+    "HR",
+    "HD",
+    "IL",
+    "IS",
+    "IF",
+    "MM",
+    "MH",
+    "MS",
+    "NT"
   ],
   "importStats": {
     "AB": {
@@ -130,54 +130,64 @@
       "error": "<urlopen error timed out>"
     },
     "GJ": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/GJ/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5003 ms: Timeout was reached\n"
     },
     "HR": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/HR/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5003 ms: Timeout was reached\n"
     },
     "HD": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/HD/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5003 ms: Timeout was reached\n"
     },
     "IL": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/IL/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "IS": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/IS/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5003 ms: Timeout was reached\n"
     },
     "IF": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/IF/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "MM": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/MM/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "MH": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/MH/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5003 ms: Timeout was reached\n"
     },
     "MS": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/MS/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5003 ms: Timeout was reached\n"
     },
     "NT": {
-      "status": "error",
+      "status": "download-unavailable",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/NT/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "OT": {
       "status": "error",
