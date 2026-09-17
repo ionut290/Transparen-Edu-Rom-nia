@@ -1,10 +1,10 @@
 {
   "name":"Transparență Edu România",
   "short_name":"Transparență Edu",
-  "start_url":"./community.html",
+  "start_url":"./role-demo.html",
   "display":"standalone",
   "background_color":"#f4f7fb",
   "theme_color":"#173f73",
   "lang":"ro",
-  "description":"Comunitate sigură pentru elevii din România: discuții, sondaje, idei, semnalări și sprijin în jurul școlii lor"
+  "description":"Comunitate școlară: Director, diriginți, profesori, elevi și părinți, cu clase și aprobări"
 }
