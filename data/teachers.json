@@ -1,65 +1,83 @@
 {
-  "schemaVersion": 6,
-  "updatedAt": "2026-09-16",
+  "schemaVersion": 7,
+  "updatedAt": "2026-09-17",
   "sourceYear": 2026,
-  "coverage": "official-education-sources",
+  "coverage": "official-definitivat-current-placement",
   "linkingPolicy": "School links require an explicit official current-placement field and a separate exact school-registry match; name-only teacher matching is forbidden.",
   "count": 0,
   "jurisdictionsAttempted": 42,
   "lastBatch": [
-    "VL",
-    "VN"
+    "AB",
+    "AR",
+    "AG",
+    "BC",
+    "BH",
+    "BN",
+    "BT",
+    "BV",
+    "BR",
+    "B"
   ],
   "importStats": {
     "AB": {
       "status": "error",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "error": "<urlopen error timed out>",
+      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/AB/ci_nip/index.html"
     },
     "AR": {
       "status": "error",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "error": "<urlopen error timed out>",
+      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/AR/ci_nip/index.html"
     },
     "AG": {
       "status": "error",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "error": "<urlopen error timed out>",
+      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/AG/ci_nip/index.html"
     },
     "BC": {
       "status": "error",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "error": "<urlopen error timed out>",
+      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BC/ci_nip/index.html"
     },
     "BH": {
       "status": "error",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "error": "<urlopen error timed out>",
+      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BH/ci_nip/index.html"
     },
     "BN": {
       "status": "error",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "error": "<urlopen error timed out>",
+      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BN/ci_nip/index.html"
     },
     "BT": {
       "status": "error",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "error": "<urlopen error timed out>",
+      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BT/ci_nip/index.html"
     },
     "BV": {
       "status": "error",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "error": "<urlopen error timed out>",
+      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BV/ci_nip/index.html"
     },
     "BR": {
       "status": "error",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "error": "<urlopen error timed out>",
+      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/BR/ci_nip/index.html"
     },
     "B": {
       "status": "error",
       "count": 0,
-      "error": "<urlopen error timed out>"
+      "error": "<urlopen error timed out>",
+      "url": "https://www.definitivat.edu.ro/2026/generated/files/j/B/ci_nip/index.html"
     },
     "BZ": {
       "status": "error",
