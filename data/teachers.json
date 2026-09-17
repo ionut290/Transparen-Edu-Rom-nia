@@ -7,16 +7,8 @@
   "count": 0,
   "jurisdictionsAttempted": 42,
   "lastBatch": [
-    "OT",
-    "PH",
-    "SM",
-    "SJ",
-    "SB",
-    "SV",
-    "TR",
-    "TM",
-    "TL",
-    "VS"
+    "VL",
+    "VN"
   ],
   "importStats": {
     "AB": {
@@ -250,12 +242,16 @@
       "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     },
     "VL": {
-      "status": "page-not-resolved",
-      "count": 0
+      "status": "download-unavailable",
+      "count": 0,
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/VL/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5003 ms: Timeout was reached\n"
     },
     "VN": {
-      "status": "page-not-resolved",
-      "count": 0
+      "status": "download-unavailable",
+      "count": 0,
+      "baseUrl": "https://definitivat.edu.ro/2026/generated/files/j/VN/ci_nip/",
+      "lastError": "curl: (28) Failed to connect to definitivat.edu.ro port 443 after 5002 ms: Timeout was reached\n"
     }
   },
   "teachers": []
